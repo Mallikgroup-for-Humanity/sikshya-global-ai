@@ -1,5 +1,7 @@
 import os, json, urllib.request
 
+# © 2026 Niraj Mallik
+
 STATE_FILE = "data/student_state.json"
 API_KEY = os.getenv("GEMINI_API_KEY", "")
 
@@ -31,11 +33,15 @@ def ask_tutor(prompt, state):
         data = json.loads(res.read().decode())
         return data["candidates"][0]["content"]["parts"][0]["text"]
 
-if __name__ == "__main__":
+def main():
     state = load_state()
     print("=== Sikshya Global AI Agent (Type 'exit' to suspend state) ===")
     while True:
-        q = input("\nYou: ").strip()
+        try:
+            q = input("\nYou: ").strip()
+        except EOFError:
+            q = "exit"
+            
         if q.lower() in ("exit", "quit"):
             save_state(state)
             print("Agent state suspended to disk.")
@@ -44,3 +50,6 @@ if __name__ == "__main__":
         print(f"\nSikshya AI: {ans}")
         state["history"].append(f"User: {q}\nAI: {ans}")
         save_state(state)
+
+if __name__ == "__main__":
+    main()
