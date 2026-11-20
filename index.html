@@ -1,6 +1,68 @@
 <!DOCTYPE html>
 <html lang="en" data-theme="light">
 <head>
+
+<script>
+// Hybrid Online (Gemini) + Offline (llama.cpp 127.0.0.1:8080) Fetch Interceptor
+// Copyright (c) 2026 Niraj Mallik (@nirajmallikhub) | MIT License
+(function () {
+  const _origFetch = window.fetch.bind(window);
+  window.fetch = async function (resource, options = {}) {
+    const url = typeof resource === "string" ? resource : (resource && resource.url) || "";
+    if (!url.includes("generativelanguage.googleapis.com")) {
+      return _origFetch(resource, options);
+    }
+
+    const mode = localStorage.getItem("sikshya_ai_mode") || "online";
+    const callLocal = async () => {
+      const bodyObj = options.body ? JSON.parse(options.body) : {};
+      const sysText = bodyObj?.systemInstruction?.parts?.[0]?.text || "You are Sikshya Global AI, a helpful bilingual tutor.";
+      const messages = [{ role: "system", content: sysText }];
+      (bodyObj.contents || []).forEach((item) => {
+        messages.push({
+          role: item.role === "model" ? "assistant" : "user",
+          content: (item.parts || []).map((p) => p.text || "").join("\n")
+        });
+      });
+
+      const localRes = await _origFetch("http://127.0.0.1:8080/v1/chat/completions", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ model: "qwen2.5-local", messages, temperature: 0.7 })
+      });
+      if (!localRes.ok) {
+        throw new Error("Local llama-server unavailable. Run 'localai' in Termux.");
+      }
+      const localData = await localRes.json();
+      const replyText = localData?.choices?.[0]?.message?.content || "";
+      const geminiShaped = {
+        candidates: [{ content: { parts: [{ text: replyText }], role: "model" } }]
+      };
+      return new Response(JSON.stringify(geminiShaped), {
+        status: 200,
+        headers: { "Content-Type": "application/json" }
+      });
+    };
+
+    if (mode === "offline") {
+      return await callLocal();
+    }
+
+    try {
+      const cloudRes = await _origFetch(resource, options);
+      if (!cloudRes.ok && (cloudRes.status === 429 || cloudRes.status >= 500)) {
+        console.warn("[Sikshya Hybrid] Cloud HTTP " + cloudRes.status + " -> switching to Local Offline");
+        return await callLocal();
+      }
+      return cloudRes;
+    } catch (err) {
+      console.warn("[Sikshya Hybrid] Network error -> switching to Local Offline:", err);
+      return await callLocal();
+    }
+  };
+})();
+</script>
+
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="theme-color" content="#f5f6f0">
@@ -434,5 +496,138 @@
       else if (historyInvalid) showNotice(words[language].historyError);
     })();
   </script>
+<div style="position:fixed;top:12px;right:12px;z-index:9999;">
+<!-- Copyright (c) 2026 Niraj Mallik (@nirajmallikhub) | MIT License -->
+<style>
+  .sikshya-mode-bar {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    background: #0f172a;
+    border: 1px solid #334155;
+    border-radius: 999px;
+    padding: 4px;
+    font-family: system-ui, -apple-system, sans-serif;
+  }
+  .sikshya-mode-btn {
+    border: none;
+    background: transparent;
+    color: #94a3b8;
+    padding: 6px 14px;
+    border-radius: 999px;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    transition: all 0.2s ease;
+  }
+  .sikshya-mode-btn.active[data-mode="online"] {
+    background: #2563eb;
+    color: #ffffff;
+    box-shadow: 0 2px 8px rgba(37, 99, 235, 0.4);
+  }
+  .sikshya-mode-btn.active[data-mode="offline"] {
+    background: #059669;
+    color: #ffffff;
+    box-shadow: 0 2px 8px rgba(5, 150, 105, 0.4);
+  }
+  .local-status-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: #64748b;
+    display: inline-block;
+  }
+  .local-status-dot.ready {
+    background: #4ade80;
+    box-shadow: 0 0 6px #4ade80;
+  }
+</style>
+
+<div class="sikshya-mode-bar" role="group" aria-label="AI Engine Mode">
+  <button type="button" class="sikshya-mode-btn active" data-mode="online" onclick="setAIMode('online')">
+    ☁️ Online Cloud
+  </button>
+  <button type="button" class="sikshya-mode-btn" data-mode="offline" onclick="setAIMode('offline')">
+    <span id="localDot" class="local-status-dot" title="Local llama-server status"></span>
+    📱 Local Offline
+  </button>
+</div>
+
+<script>
+  const LOCAL_BASE_URL = "http://127.0.0.1:8080";
+  const CLOUD_API_URL = "/api/chat";
+
+  let currentAIMode = localStorage.getItem("sikshya_ai_mode") || "online";
+
+  function setAIMode(mode) {
+    currentAIMode = mode;
+    localStorage.setItem("sikshya_ai_mode", mode);
+    document.querySelectorAll(".sikshya-mode-btn").forEach((btn) => {
+      btn.classList.toggle("active", btn.dataset.mode === mode);
+    });
+  }
+
+  async function checkLocalServerHealth() {
+    const dot = document.getElementById("localDot");
+    if (!dot) return;
+    try {
+      const res = await fetch(`${LOCAL_BASE_URL}/health`, { method: "GET" });
+      dot.classList.toggle("ready", res.ok);
+    } catch {
+      dot.classList.remove("ready");
+    }
+  }
+
+  async function sendSikshyaMessage(userMessage, systemPrompt = "You are Sikshya Global AI, a helpful bilingual tutor.") {
+    if (currentAIMode === "offline") {
+      return await callLocalOffline(userMessage, systemPrompt);
+    }
+    try {
+      const res = await fetch(CLOUD_API_URL, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ prompt: userMessage, system: systemPrompt })
+      });
+      if (!res.ok) throw new Error(`Cloud HTTP ${res.status}`);
+      const data = await res.json();
+      return { engine: "Online Cloud", text: data.reply || data.text };
+    } catch (err) {
+      console.warn("Cloud failed, falling back to Local Offline:", err);
+      return await callLocalOffline(userMessage, systemPrompt);
+    }
+  }
+
+  async function callLocalOffline(userMessage, systemPrompt) {
+    const res = await fetch(`${LOCAL_BASE_URL}/v1/chat/completions`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        model: "qwen2.5-local",
+        messages: [
+          { role: "system", content: systemPrompt },
+          { role: "user", content: userMessage }
+        ],
+        temperature: 0.7
+      })
+    });
+    if (!res.ok) {
+      throw new Error("Local server offline. Start 'localai' in Termux first.");
+    }
+    const data = await res.json();
+    return {
+      engine: "Local Offline (127.0.0.1:8080)",
+      text: data.choices[0].message.content
+    };
+  }
+
+  setAIMode(currentAIMode);
+  checkLocalServerHealth();
+  setInterval(checkLocalServerHealth, 5000);
+</script>
+
+</div>
 </body>
 </html>
