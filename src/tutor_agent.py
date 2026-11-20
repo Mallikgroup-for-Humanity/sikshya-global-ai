@@ -10,6 +10,7 @@ def load_state():
     return {"student": "Student", "history": []}
 
 def save_state(state):
+    os.makedirs(os.path.dirname(STATE_FILE), exist_ok=True)
     with open(STATE_FILE, "w") as f:
         json.dump(state, f, indent=2)
 
