@@ -1,0 +1,438 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#f5f6f0">
+  <title>Sikshya Global AI — Your learning companion</title>
+  <style>
+    :root{color-scheme:light;--bg:#f4f6f0;--surface:#fff;--surface-2:#f8f9f5;--text:#202c26;--muted:#758078;--line:#e6ebe3;--green:#315d45;--green-dark:#244c38;--green-soft:#e9f1e8;--accent:#dbedb5;--shadow:0 12px 40px rgba(35,58,42,.06);--danger:#a54440;--focus:#699c72}
+    [data-theme="dark"]{color-scheme:dark;--bg:#131c17;--surface:#1c2821;--surface-2:#202f26;--text:#ecf2e9;--muted:#a0afa2;--line:#35463a;--green:#b7dcae;--green-dark:#d0ebc8;--green-soft:#2b4030;--accent:#3f5b39;--shadow:0 12px 40px rgba(0,0,0,.15);--danger:#f0a09b;--focus:#a8d19b}
+    *{box-sizing:border-box}
+    html,body{margin:0;min-height:100%;font-family:Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif}
+    body{background:var(--bg);color:var(--text);font-size:14px;line-height:1.5}
+    button,input,textarea{font:inherit}
+    button{cursor:pointer}
+    button:focus-visible,input:focus-visible,textarea:focus-visible{outline:3px solid var(--focus);outline-offset:3px}
+    button:disabled{cursor:not-allowed;opacity:.5}
+    svg{width:20px;height:20px;fill:none;stroke:currentColor;stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round;flex:none}
+    .app{max-width:1600px;min-height:100vh;margin:auto;display:flex}
+    .sidebar{display:none;width:252px;flex:none;background:var(--surface);border-right:1px solid var(--line);padding:30px 20px;flex-direction:column}
+    .brand{display:flex;align-items:center;gap:11px;text-decoration:none;color:var(--text);min-width:0}
+    .brand-mark,.avatar{display:grid;place-items:center;flex:none;background:var(--green);color:var(--surface);border-radius:13px}
+    .brand-mark{width:40px;height:40px}
+    .brand-mark svg{width:23px;height:23px}
+    .brand-name{font-weight:750;letter-spacing:-.04em;font-size:16px;line-height:1.2}
+    .brand-sub{display:block;color:var(--muted);font-size:10px;font-weight:650;letter-spacing:.13em;text-transform:uppercase;margin-top:3px}
+    .side-label{margin:55px 11px 12px;color:var(--muted);font-size:10px;font-weight:750;letter-spacing:.14em;text-transform:uppercase}
+    .nav-item{display:flex;align-items:center;gap:11px;padding:12px;border-radius:10px;background:var(--green-soft);color:var(--green);font-weight:700}
+    .nav-item svg{width:18px;height:18px}
+    .nav-dot{margin-left:auto;width:6px;height:6px;background:var(--green);border-radius:50%}
+    .side-bottom{margin-top:auto}
+    .side-card{background:var(--surface-2);border:1px solid var(--line);border-radius:16px;padding:17px}
+    .side-card-icon{width:34px;height:34px;border-radius:10px;display:grid;place-items:center;background:var(--accent);color:var(--green-dark);margin-bottom:13px}
+    .side-card-icon svg{width:18px;height:18px}
+    .side-card strong{display:block;font-size:13px}
+    .side-card p{color:var(--muted);font-size:12px;line-height:1.6;margin:6px 0 0}
+    .sidebar-footer{color:var(--muted);font-size:11px;line-height:1.6;padding:20px 2px 0}
+    .main{flex:1;min-width:0;display:flex;flex-direction:column;min-height:100vh}
+    .topbar{height:74px;padding:0 20px;display:flex;align-items:center;justify-content:space-between;gap:12px;border-bottom:1px solid var(--line);background:var(--surface)}
+    .mobile-brand .brand-sub{font-size:9px}
+    .page-title{display:none}
+    .top-actions{display:flex;align-items:center;gap:6px}
+    .icon-button,.text-button{border:0;background:transparent;color:var(--muted);border-radius:10px;display:inline-flex;align-items:center;justify-content:center;gap:7px;min-height:40px}
+    .icon-button{width:40px}
+    .icon-button:hover,.text-button:hover{background:var(--surface-2);color:var(--text)}
+    .lang-button{font-size:12px;font-weight:750;padding:0 9px;color:var(--text)}
+    .content{width:100%;max-width:1060px;margin:0 auto;padding:30px 16px 24px;flex:1}
+    .eyebrow{display:flex;align-items:center;gap:8px;color:var(--green);font-size:10px;letter-spacing:.16em;font-weight:800;text-transform:uppercase}
+    .eyebrow span{width:7px;height:7px;border-radius:50%;background:#83b67e}
+    h1{font-size:clamp(28px,5vw,43px);line-height:1.15;letter-spacing:-.055em;margin:12px 0 9px;font-weight:720}
+    .intro{color:var(--muted);font-size:14px;margin:0;max-width:620px}
+    .workspace{display:grid;gap:18px;margin-top:27px}
+    .chat-card,.settings-card{background:var(--surface);border:1px solid var(--line);border-radius:18px;box-shadow:var(--shadow)}
+    .chat-card{min-width:0;display:flex;flex-direction:column;overflow:hidden}
+    .chat-header{padding:17px 18px;display:flex;align-items:center;gap:11px;border-bottom:1px solid var(--line)}
+    .avatar{width:39px;height:39px;border-radius:12px}
+    .avatar svg{width:21px;height:21px}
+    .chat-heading{min-width:0;flex:1}
+    .chat-heading strong{display:block;font-size:14px}
+    .chat-heading small{display:flex;align-items:center;gap:6px;color:var(--muted);font-size:11px}
+    .status-dot{width:6px;height:6px;background:#8ab881;border-radius:50%}
+    .conversation{min-height:360px;height:clamp(360px,48vh,580px);overflow-y:auto;padding:20px 16px;scroll-behavior:smooth}
+    .welcome{height:100%;min-height:300px;display:flex;align-items:center;justify-content:center;text-align:center;flex-direction:column}
+    .welcome-icon{width:62px;height:62px;background:var(--green-soft);color:var(--green);border-radius:20px;display:grid;place-items:center;margin-bottom:17px}
+    .welcome-icon svg{width:29px;height:29px}
+    .welcome h2{font-size:20px;letter-spacing:-.035em;margin:0 0 7px}
+    .welcome p{max-width:300px;color:var(--muted);font-size:13px;margin:0}
+    .suggestions{display:flex;flex-wrap:wrap;justify-content:center;gap:8px;margin-top:20px}
+    .suggestion{background:var(--surface);border:1px solid var(--line);color:var(--text);border-radius:9px;padding:9px 11px;font-size:11px;font-weight:600}
+    .suggestion:hover{border-color:var(--green);color:var(--green)}
+    .message{display:flex;gap:10px;margin-bottom:18px;align-items:flex-start}
+    .message.user{justify-content:flex-end}
+    .message .avatar{width:30px;height:30px;border-radius:9px}
+    .message .avatar svg{width:16px;height:16px}
+    .bubble{max-width:85%;padding:11px 14px;border-radius:4px 14px 14px 14px;background:var(--surface-2);font-size:13px;line-height:1.65;white-space:pre-wrap;overflow-wrap:anywhere}
+    .user .bubble{background:var(--green);color:var(--surface);border-radius:14px 4px 14px 14px}
+    .pending{color:var(--muted);font-style:italic}
+    .composer-wrap{padding:12px 16px 15px;border-top:1px solid var(--line)}
+    .composer{display:flex;align-items:flex-end;gap:8px;background:var(--surface-2);border:1px solid var(--line);border-radius:12px;padding:8px}
+    .composer:focus-within{border-color:var(--focus)}
+    textarea{resize:none;max-height:140px;min-height:40px;width:100%;border:0;background:transparent;color:var(--text);outline:0!important;padding:10px 5px;line-height:20px}
+    textarea::placeholder,input::placeholder{color:var(--muted)}
+    .send{width:40px;height:40px;flex:none;border:0;border-radius:9px;background:var(--green);color:var(--surface);display:grid;place-items:center}
+    .send:hover:not(:disabled){background:var(--green-dark)}
+    .send svg{width:18px;height:18px}
+    .disclaimer{text-align:center;color:var(--muted);font-size:10px;margin:10px 0 0}
+    .settings-card{padding:20px}
+    .settings-top{display:flex;align-items:center;gap:10px;margin-bottom:16px}
+    .settings-icon{display:grid;place-items:center;width:34px;height:34px;border-radius:10px;background:var(--green-soft);color:var(--green)}
+    .settings-icon svg{width:17px;height:17px}
+    .settings-top h2{font-size:14px;letter-spacing:-.01em;margin:0}
+    .settings-top p{color:var(--muted);font-size:11px;margin:2px 0 0}
+    .field-label{display:block;font-size:12px;font-weight:700;margin-bottom:7px}
+    .key-row{display:flex;gap:6px}
+    .key-input{min-width:0;width:100%;background:var(--surface-2);border:1px solid var(--line);color:var(--text);padding:10px;border-radius:9px;font-size:12px}
+    .key-save{border:0;background:var(--green);color:var(--surface);font-size:12px;font-weight:700;border-radius:9px;padding:0 12px}
+    .hint{color:var(--muted);font-size:11px;line-height:1.6;margin:9px 0 0}
+    .hint a{color:var(--green);font-weight:700;text-decoration:none}
+    .hint a:hover{text-decoration:underline}
+    .settings-divider{height:1px;background:var(--line);margin:20px 0}
+    .data-title{font-size:12px;font-weight:700;margin:0 0 4px}
+    .data-actions{display:flex;gap:7px;margin-top:14px}
+    .outline-button{flex:1;display:flex;align-items:center;justify-content:center;gap:6px;border:1px solid var(--line);background:var(--surface);color:var(--text);border-radius:9px;padding:9px 6px;font-size:11px;font-weight:700}
+    .outline-button svg{width:14px;height:14px}
+    .outline-button:hover{border-color:var(--green);color:var(--green)}
+    .outline-button.danger:hover{border-color:var(--danger);color:var(--danger)}
+    .privacy{display:flex;align-items:flex-start;gap:9px;margin-top:18px;padding:12px;background:var(--green-soft);border-radius:10px;color:var(--green)}
+    .privacy svg{width:16px;height:16px;margin-top:1px}
+    .privacy p{font-size:11px;line-height:1.5;margin:0}
+    .notice{min-height:0;margin:0;color:var(--danger);font-size:12px}
+    .notice:not(:empty){margin:0 16px 10px}
+    .footer{color:var(--muted);font-size:11px;text-align:center;padding:0 16px 22px}
+    @media(min-width:700px){.content{padding:45px 32px 32px}.workspace{grid-template-columns:minmax(0,1fr) 260px}.chat-header{padding:18px 22px}.conversation{padding:24px}.composer-wrap{padding:14px 20px 17px}.topbar{padding:0 32px}.mobile-brand{display:none}.page-title{display:block;font-weight:700;letter-spacing:-.02em}.page-title small{display:block;color:var(--muted);font-size:11px;font-weight:400}.footer{text-align:left;padding-left:32px}}
+    @media(min-width:1050px){.sidebar{display:flex}.content{padding:52px 44px 32px}.topbar{padding:0 44px}.footer{padding-left:44px}.workspace{grid-template-columns:minmax(0,1fr) 285px;gap:22px}}
+    @media(max-width:699px){.settings-card{order:-1}.settings-card #data-settings{display:none}.settings-card.expanded #data-settings{display:block}.settings-top{cursor:pointer;margin-bottom:12px}.settings-top::after{content:"＋";margin-left:auto;color:var(--muted);font-size:18px}.settings-card.expanded .settings-top::after{content:"−"}}
+  </style>
+</head>
+<body>
+  <svg aria-hidden="true" style="position:absolute;width:0;height:0;overflow:hidden" xmlns="http://www.w3.org/2000/svg">
+    <symbol id="i-spark" viewBox="0 0 24 24"><path d="M12 2c.7 5.2 2.8 7.3 8 8-5.2.7-7.3 2.8-8 8-.7-5.2-2.8-7.3-8-8 5.2-.7 7.3-2.8 8-8Z"/><path d="M19 16c.2 1.8 1.2 2.8 3 3-1.8.2-2.8 1.2-3 3-.2-1.8-1.2-2.8-3-3 1.8-.2 2.8-1.2 3-3Z"/></symbol>
+    <symbol id="i-chat" viewBox="0 0 24 24"><path d="M20 11.5a8 8 0 0 1-8 8 8.6 8.6 0 0 1-3.5-.8L4 20l1.2-4A8 8 0 1 1 20 11.5Z"/><path d="M8.5 11.5h7"/></symbol>
+    <symbol id="i-book" viewBox="0 0 24 24"><path d="M12 6.5c-2-2-5-2.5-8-2v14c3-.5 6 0 8 2m0-14c2-2 5-2.5 8-2v14c-3-.5-6 0-8 2m0-14v14"/></symbol>
+    <symbol id="i-key" viewBox="0 0 24 24"><circle cx="8" cy="15" r="4"/><path d="m11 12 8-8 2 2-2 2 1.5 1.5-2 2L17 10l-3 3"/></symbol>
+    <symbol id="i-sun" viewBox="0 0 24 24"><circle cx="12" cy="12" r="4"/><path d="M12 2v2m0 16v2M4.93 4.93l1.41 1.41m11.32 11.32 1.41 1.41M2 12h2m16 0h2M4.93 19.07l1.41-1.41M17.66 6.34l1.41-1.41"/></symbol>
+    <symbol id="i-moon" viewBox="0 0 24 24"><path d="M20.5 14.5A8.5 8.5 0 0 1 9.5 3.5a8.5 8.5 0 1 0 11 11Z"/></symbol>
+    <symbol id="i-send" viewBox="0 0 24 24"><path d="m4 12 16-8-5 16-3-7-8-1Zm8 1 8-9"/></symbol>
+    <symbol id="i-download" viewBox="0 0 24 24"><path d="M12 3v12m-4-4 4 4 4-4M4 17v3h16v-3"/></symbol>
+    <symbol id="i-trash" viewBox="0 0 24 24"><path d="M4 7h16M9 7V4h6v3m3 0-1 13H7L6 7m4 4v5m4-5v5"/></symbol>
+    <symbol id="i-shield" viewBox="0 0 24 24"><path d="M12 3 4 6v5c0 5 3.5 8 8 10 4.5-2 8-5 8-10V6l-8-3Z"/><path d="m9 12 2 2 4-4"/></symbol>
+  </svg>
+  <div class="app">
+    <aside class="sidebar">
+      <a class="brand" href="./" aria-label="Sikshya Global AI">
+        <span class="brand-mark"><svg><use href="#i-spark"/></svg></span>
+        <span class="brand-name">Sikshya Global AI<span class="brand-sub">Learn without limits</span></span>
+      </a>
+      <div class="side-label" data-i18n="workspace">Workspace</div>
+      <div class="nav-item"><svg><use href="#i-chat"/></svg><span data-i18n="aiTutor">AI Tutor</span><span class="nav-dot"></span></div>
+      <div class="side-bottom">
+        <div class="side-card">
+          <div class="side-card-icon"><svg><use href="#i-book"/></svg></div>
+          <strong data-i18n="sideTitle">A little progress, every day.</strong>
+          <p data-i18n="sideText">Every question is a step towards something great. Keep your curiosity growing.</p>
+        </div>
+        <div class="sidebar-footer">Made for curious minds everywhere.<br>© 2026 Niraj Mallik<br>Mallikgroup-for-Humanity</div>
+      </div>
+    </aside>
+    <main class="main">
+      <header class="topbar">
+        <a class="brand mobile-brand" href="./" aria-label="Sikshya Global AI"><span class="brand-mark"><svg><use href="#i-spark"/></svg></span><span class="brand-name">Sikshya Global AI<span class="brand-sub">Learn without limits</span></span></a>
+        <div class="page-title"><span data-i18n="aiTutor">AI Tutor</span><small data-i18n="topSubtitle">Your personal learning space</small></div>
+        <div class="top-actions">
+          <button class="text-button lang-button" id="language" type="button" aria-label="Switch to Nepali">नेपाली / EN</button>
+          <button class="icon-button" id="theme" type="button" aria-label="Switch to dark mode" title="Switch to dark mode"><svg><use href="#i-moon"/></svg></button>
+        </div>
+      </header>
+      <div class="content">
+        <div class="eyebrow"><span></span><span data-i18n="eyebrow">A space to learn and grow</span></div>
+        <h1 data-i18n="greeting">Hello, curious mind.</h1>
+        <p class="intro" data-i18n="intro">Big questions or small ones, we're here to learn together. What will you discover today?</p>
+        <div class="workspace">
+          <section class="chat-card" aria-labelledby="chat-title">
+            <div class="chat-header">
+              <span class="avatar"><svg><use href="#i-spark"/></svg></span>
+              <div class="chat-heading"><strong id="chat-title" data-i18n="aiTutor">AI Tutor</strong><small><span class="status-dot"></span><span data-i18n="chatSubtitle">Your learning companion</span></small></div>
+              <svg style="color:var(--muted)"><use href="#i-spark"/></svg>
+            </div>
+            <div id="conversation" class="conversation" role="log" aria-live="polite" aria-label="Conversation"></div>
+            <p id="notice" class="notice" role="alert"></p>
+            <div class="composer-wrap">
+              <form id="chat-form" class="composer">
+                <textarea id="prompt" rows="1" maxlength="20000" data-i18n-placeholder="placeholder" placeholder="Ask anything you want to learn..." aria-label="Your message"></textarea>
+                <button class="send" id="send" type="submit" aria-label="Send message" title="Send message"><svg><use href="#i-send"/></svg></button>
+              </form>
+              <p class="disclaimer" data-i18n="disclaimer">AI can make mistakes. Double-check important information.</p>
+            </div>
+          </section>
+          <aside class="settings-card" id="settings">
+            <div class="settings-top" id="settings-heading">
+              <span class="settings-icon"><svg><use href="#i-key"/></svg></span>
+              <div><h2 data-i18n="settings">Your learning space</h2><p data-i18n="settingsSub">A few things to get started</p></div>
+            </div>
+            <form id="key-form">
+              <label class="field-label" for="api-key" data-i18n="apiKey">Gemini API key</label>
+              <div class="key-row"><input class="key-input" id="api-key" type="password" autocomplete="off" spellcheck="false" placeholder="Paste your API key"><button class="key-save" type="submit" data-i18n="save">Save</button></div>
+              <p class="hint"><span data-i18n="keyHint">Your key stays in this browser.</span> <a href="https://aistudio.google.com/app/apikey" target="_blank" rel="noopener noreferrer" data-i18n="getKey">Get a key ↗</a></p>
+            </form>
+            <div id="data-settings">
+              <div class="settings-divider"></div>
+              <p class="data-title" data-i18n="yourData">Your learning data</p>
+              <p class="hint" data-i18n="dataHint">Your conversation is saved on this device. Take it with you or start fresh.</p>
+              <div class="data-actions">
+                <button id="export" class="outline-button" type="button"><svg><use href="#i-download"/></svg><span data-i18n="export">Export</span></button>
+                <button id="clear" class="outline-button danger" type="button"><svg><use href="#i-trash"/></svg><span data-i18n="clear">Clear data</span></button>
+              </div>
+              <div class="privacy"><svg><use href="#i-shield"/></svg><p data-i18n="privacy">Your key and chat stay in this browser. Messages are sent to Google to generate replies.</p></div>
+            </div>
+          </aside>
+        </div>
+      </div>
+      <footer class="footer">© 2026 Niraj Mallik · Mallikgroup-for-Humanity</footer>
+    </main>
+  </div>
+  <script>
+    (() => {
+      "use strict";
+      const STORAGE = { key: "sikshya.apiKey", history: "sikshya.history", language: "sikshya.language", theme: "sikshya.theme" };
+      const words = {
+        en: {
+          workspace:"Workspace", aiTutor:"AI Tutor", sideTitle:"A little progress, every day.", sideText:"Every question is a step towards something great. Keep your curiosity growing.", topSubtitle:"Your personal learning space", eyebrow:"A space to learn and grow", greeting:"Hello, curious mind.", intro:"Big questions or small ones, we're here to learn together. What will you discover today?", chatSubtitle:"Your learning companion", placeholder:"Ask anything you want to learn...", disclaimer:"AI can make mistakes. Double-check important information.", settings:"Your learning space", settingsSub:"A few things to get started", apiKey:"Gemini API key", save:"Save", keyHint:"Your key stays in this browser.", getKey:"Get a key ↗", yourData:"Your learning data", dataHint:"Your conversation is saved on this device. Take it with you or start fresh.", export:"Export", clear:"Clear data", privacy:"Your key and chat stay in this browser. Messages are sent to Google to generate replies.", welcomeTitle:"What would you like to learn?", welcomeText:"I'm here to help you understand, explore, and grow. Ask me anything!", suggestions:["Explain photosynthesis","Help me practice English","Teach me something new"], thinking:"Thinking…", noKey:"Please save your Gemini API key before sending a message.", saved:"API key saved in this browser.", keyRemoved:"API key removed from this browser.", keyPlaceholder:"Paste your API key", confirmClear:"Clear your conversation, API key, and preferences from this browser? This cannot be undone.", storageError:"Browser storage is unavailable or full. Changes may not be saved.", historyError:"Saved conversation could not be read. Export or clear your data before starting a new conversation.", requestError:"Could not get a response", emptyResponse:"The model returned no text. Please try another question.", send:"Send message", message:"Your message", conversation:"Conversation", dark:"Switch to dark mode", light:"Switch to light mode", switchLanguage:"Switch to Nepali", settingsToggle:"Toggle data settings"
+        },
+        ne: {
+          workspace:"कार्यक्षेत्र", aiTutor:"एआई शिक्षक", sideTitle:"हरेक दिन, सानो प्रगति।", sideText:"हरेक प्रश्न नयाँ उपलब्धितर्फको एक कदम हो। आफ्नो जिज्ञासा बढाइराख्नुहोस्।", topSubtitle:"तपाईंको व्यक्तिगत सिकाइ ठाउँ", eyebrow:"सिक्ने र अघि बढ्ने ठाउँ", greeting:"नमस्ते, जिज्ञासु मन।", intro:"ठूला वा साना प्रश्न, हामी सँगै सिक्न यहाँ छौँ। आज तपाईं के जान्न चाहनुहुन्छ?", chatSubtitle:"तपाईंको सिकाइ साथी", placeholder:"आफूले सिक्न चाहेको कुरा सोध्नुहोस्...", disclaimer:"एआईले गल्ती गर्न सक्छ। महत्त्वपूर्ण जानकारी जाँच गर्नुहोस्।", settings:"तपाईंको सिकाइ ठाउँ", settingsSub:"सुरु गर्न केही कुराहरू", apiKey:"Gemini API कुञ्जी", save:"सुरक्षित", keyHint:"तपाईंको कुञ्जी यही ब्राउजरमा रहन्छ।", getKey:"कुञ्जी लिनुहोस् ↗", yourData:"तपाईंको सिकाइ डेटा", dataHint:"तपाईंको कुराकानी यस उपकरणमा सुरक्षित हुन्छ। डाउनलोड गर्नुहोस् वा नयाँ सुरु गर्नुहोस्।", export:"डाउनलोड", clear:"डेटा हटाउनुहोस्", privacy:"तपाईंको कुञ्जी र कुराकानी यस ब्राउजरमा रहन्छन्। जवाफ बनाउन सन्देशहरू Google मा पठाइन्छन्।", welcomeTitle:"तपाईं के सिक्न चाहनुहुन्छ?", welcomeText:"बुझ्न, खोज्न र अघि बढ्न म तपाईंलाई सहयोग गर्न यहाँ छु। मलाई केही पनि सोध्नुहोस्!", suggestions:["प्रकाश संश्लेषण बुझाउनुहोस्","मलाई अंग्रेजी अभ्यास गर्न सहयोग गर्नुहोस्","मलाई केही नयाँ सिकाउनुहोस्"], thinking:"सोच्दै छु…", noKey:"सन्देश पठाउनुअघि आफ्नो Gemini API कुञ्जी सुरक्षित गर्नुहोस्।", saved:"API कुञ्जी यस ब्राउजरमा सुरक्षित भयो।", keyRemoved:"API कुञ्जी यस ब्राउजरबाट हटाइयो।", keyPlaceholder:"आफ्नो API कुञ्जी राख्नुहोस्", confirmClear:"यस ब्राउजरबाट कुराकानी, API कुञ्जी र प्राथमिकताहरू हटाउने? यसलाई पूर्ववत गर्न सकिँदैन।", storageError:"ब्राउजरको भण्डारण उपलब्ध छैन वा भरिएको छ। परिवर्तन सुरक्षित नहुन सक्छ।", historyError:"सुरक्षित कुराकानी पढ्न सकिएन। नयाँ कुराकानी सुरु गर्न डेटा डाउनलोड वा हटाउनुहोस्।", requestError:"जवाफ प्राप्त गर्न सकिएन", emptyResponse:"मोडेलले कुनै पाठ दिएन। अर्को प्रश्न सोध्नुहोस्।", send:"सन्देश पठाउनुहोस्", message:"तपाईंको सन्देश", conversation:"कुराकानी", dark:"गाढा मोड खोल्नुहोस्", light:"उज्यालो मोड खोल्नुहोस्", switchLanguage:"Switch to English", settingsToggle:"डेटा सेटिङ खोल्नुहोस्"
+        }
+      };
+      const $ = id => document.getElementById(id);
+      let storageFailed = false;
+      function read(key) {
+        try { return localStorage.getItem(key); }
+        catch (error) { storageFailed = true; return null; }
+      }
+      function write(key, value) {
+        try { localStorage.setItem(key, value); return true; }
+        catch (error) { storageFailed = true; showNotice(words[language].storageError); return false; }
+      }
+      function remove(key) {
+        try { localStorage.removeItem(key); return true; }
+        catch (error) { storageFailed = true; showNotice(words[language].storageError); return false; }
+      }
+      let language = read(STORAGE.language) === "ne" ? "ne" : "en";
+      let theme = read(STORAGE.theme) === "dark" ? "dark" : "light";
+      let apiKey = read(STORAGE.key) || "";
+      let history = [];
+      let busy = false;
+      let historyInvalid = false;
+      const storedHistory = read(STORAGE.history);
+      if (storedHistory) {
+        try {
+          const parsed = JSON.parse(storedHistory);
+          if (!Array.isArray(parsed) || !parsed.every(item => item && (item.role === "user" || item.role === "model") && typeof item.text === "string")) throw new Error("Invalid history");
+          history = parsed;
+        } catch (error) {
+          historyInvalid = true;
+        }
+      }
+      function showNotice(message) { $("notice").textContent = message; }
+      function render() {
+        const t = words[language];
+        document.documentElement.lang = language;
+        document.documentElement.dataset.theme = theme;
+        document.querySelectorAll("[data-i18n]").forEach(element => { element.textContent = t[element.dataset.i18n]; });
+        document.querySelectorAll("[data-i18n-placeholder]").forEach(element => { element.placeholder = t[element.dataset.i18nPlaceholder]; });
+        $("api-key").placeholder = t.keyPlaceholder;
+        $("language").setAttribute("aria-label", t.switchLanguage);
+        $("theme").setAttribute("aria-label", theme === "light" ? t.dark : t.light);
+        $("theme").title = theme === "light" ? t.dark : t.light;
+        $("theme").querySelector("use").setAttribute("href", theme === "light" ? "#i-moon" : "#i-sun");
+        $("send").setAttribute("aria-label", t.send);
+        $("send").title = t.send;
+        $("prompt").setAttribute("aria-label", t.message);
+        $("conversation").setAttribute("aria-label", t.conversation);
+        $("settings-heading").setAttribute("aria-label", t.settingsToggle);
+        renderConversation();
+      }
+      function renderConversation() {
+        const conversation = $("conversation");
+        conversation.replaceChildren();
+        if (!history.length && !busy) {
+          const welcome = document.createElement("div");
+          welcome.className = "welcome";
+          const icon = document.createElement("div");
+          icon.className = "welcome-icon";
+          icon.innerHTML = '<svg aria-hidden="true"><use href="#i-spark"></use></svg>';
+          const title = document.createElement("h2");
+          title.textContent = words[language].welcomeTitle;
+          const text = document.createElement("p");
+          text.textContent = words[language].welcomeText;
+          const suggestions = document.createElement("div");
+          suggestions.className = "suggestions";
+          words[language].suggestions.forEach(suggestion => {
+            const button = document.createElement("button");
+            button.type = "button";
+            button.className = "suggestion";
+            button.textContent = suggestion;
+            button.addEventListener("click", () => { $("prompt").value = suggestion; $("prompt").focus(); });
+            suggestions.append(button);
+          });
+          welcome.append(icon, title, text, suggestions);
+          conversation.append(welcome);
+        } else {
+          history.forEach(item => appendMessage(item.role, item.text));
+          if (busy) appendMessage("model", words[language].thinking, true);
+        }
+        conversation.scrollTop = conversation.scrollHeight;
+      }
+      function appendMessage(role, text, pending = false) {
+        const row = document.createElement("div");
+        row.className = "message " + (role === "user" ? "user" : "model");
+        if (role === "model") {
+          const avatar = document.createElement("span");
+          avatar.className = "avatar";
+          avatar.innerHTML = '<svg aria-hidden="true"><use href="#i-spark"></use></svg>';
+          row.append(avatar);
+        }
+        const bubble = document.createElement("div");
+        bubble.className = "bubble" + (pending ? " pending" : "");
+        bubble.textContent = text;
+        row.append(bubble);
+        $("conversation").append(row);
+      }
+      function saveHistory() { return write(STORAGE.history, JSON.stringify(history)); }
+      function setBusy(value) {
+        busy = value;
+        $("send").disabled = value;
+        $("prompt").disabled = value;
+        $("clear").disabled = value;
+        $("export").disabled = value;
+        $("api-key").disabled = value;
+        $("key-form").querySelector("button").disabled = value;
+        renderConversation();
+      }
+      $("language").addEventListener("click", () => {
+        language = language === "en" ? "ne" : "en";
+        write(STORAGE.language, language);
+        render();
+      });
+      $("theme").addEventListener("click", () => {
+        theme = theme === "light" ? "dark" : "light";
+        write(STORAGE.theme, theme);
+        render();
+      });
+      const mobile = window.matchMedia("(max-width: 699px)");
+      function updateSettingsAccessibility() {
+        const heading = $("settings-heading");
+        if (mobile.matches) {
+          heading.setAttribute("role", "button");
+          heading.setAttribute("tabindex", "0");
+          heading.setAttribute("aria-controls", "data-settings");
+          heading.setAttribute("aria-expanded", String($("settings").classList.contains("expanded")));
+        } else {
+          ["role", "tabindex", "aria-controls", "aria-expanded"].forEach(attribute => heading.removeAttribute(attribute));
+        }
+      }
+      mobile.addEventListener("change", updateSettingsAccessibility);
+      function toggleSettings() {
+        if (!mobile.matches) return;
+        const expanded = $("settings").classList.toggle("expanded");
+        $("settings-heading").setAttribute("aria-expanded", String(expanded));
+      }
+      $("settings-heading").addEventListener("click", toggleSettings);
+      $("settings-heading").addEventListener("keydown", event => {
+        if (event.key === "Enter" || event.key === " ") { event.preventDefault(); toggleSettings(); }
+      });
+      $("key-form").addEventListener("submit", event => {
+        event.preventDefault();
+        const value = $("api-key").value.trim();
+        const saved = value ? write(STORAGE.key, value) : remove(STORAGE.key);
+        if (saved) {
+          apiKey = value;
+          showNotice(value ? words[language].saved : words[language].keyRemoved);
+        }
+      });
+      $("prompt").addEventListener("keydown", event => {
+        if (event.key === "Enter" && !event.shiftKey && !event.isComposing) {
+          event.preventDefault();
+          $("chat-form").requestSubmit();
+        }
+      });
+      $("chat-form").addEventListener("submit", async event => {
+        event.preventDefault();
+        if (busy) return;
+        if (historyInvalid) { showNotice(words[language].historyError); return; }
+        const text = $("prompt").value.trim();
+        if (!text) return;
+        if (!apiKey) { showNotice(words[language].noKey); $("api-key").focus(); return; }
+        showNotice("");
+        const previousHistory = history.slice();
+        history.push({ role:"user", text });
+        $("prompt").value = "";
+        setBusy(true);
+        try {
+          const response = await fetch("https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent", {
+            method:"POST",
+            headers:{"Content-Type":"application/json", "x-goog-api-key":apiKey},
+            body:JSON.stringify({
+              systemInstruction:{parts:[{text:"You are Sikshya Global AI, a friendly, patient educational tutor. Help learners understand concepts step by step. Respond in the language the student uses (English or Nepali), unless they request another language. Use clear plain text, not Markdown."}]},
+              contents:history.map(item => ({role:item.role, parts:[{text:item.text}]}))
+            })
+          });
+          const result = await response.json();
+          if (!response.ok) throw new Error(result.error && result.error.message ? result.error.message : `HTTP ${response.status}`);
+          const reply = result.candidates?.[0]?.content?.parts?.filter(part => typeof part.text === "string").map(part => part.text).join("").trim();
+          if (!reply) throw new Error(words[language].emptyResponse);
+          history.push({ role:"model", text:reply });
+          saveHistory();
+        } catch (error) {
+          history = previousHistory;
+          $("prompt").value = text;
+          showNotice(`${words[language].requestError}: ${error.message}`);
+        } finally {
+          setBusy(false);
+        }
+      });
+      $("export").addEventListener("click", () => {
+        const data = { app:"Sikshya Global AI", version:1, exportedAt:new Date().toISOString(), language, theme, conversation:history };
+        if (historyInvalid) data.unreadableConversation = storedHistory;
+        const url = URL.createObjectURL(new Blob([JSON.stringify(data, null, 2)], {type:"application/json"}));
+        const link = document.createElement("a");
+        link.href = url;
+        link.download = "sikshya-student-state.json";
+        document.body.append(link);
+        link.click();
+        link.remove();
+        setTimeout(() => URL.revokeObjectURL(url), 1000);
+      });
+      $("clear").addEventListener("click", () => {
+        if (busy || !confirm(words[language].confirmClear)) return;
+        const removed = Object.values(STORAGE).map(remove).every(Boolean);
+        if (!removed) return;
+        history = [];
+        historyInvalid = false;
+        apiKey = "";
+        language = "en";
+        theme = "light";
+        $("api-key").value = "";
+        $("prompt").value = "";
+        showNotice("");
+        render();
+      });
+      $("api-key").value = apiKey;
+      updateSettingsAccessibility();
+      render();
+      if (storageFailed) showNotice(words[language].storageError);
+      else if (historyInvalid) showNotice(words[language].historyError);
+    })();
+  </script>
+</body>
+</html>
